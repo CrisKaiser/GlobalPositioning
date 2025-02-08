@@ -30,7 +30,7 @@ class Ionosphere:
 
     @staticmethod
     def getReference(angle):
-        refAngle = 52.5
+        refAngle = 45.0
         refDist = Ionosphere.traveledDistance(refAngle)
         dist = Ionosphere.traveledDistance(angle)
         return dist/refDist
