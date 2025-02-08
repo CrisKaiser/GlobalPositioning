@@ -260,7 +260,7 @@ class Receiver:
     def getSatelliteSpecificNoise(self, angle):
         muliplier = Ionosphere.getReference(angle)
         p = 0.00837893141
-        return np.random.normal(0, p * muliplier)
+        return np.random.normal(0, ( (5/12 * p * muliplier) + 7/12 * p) )
 
     def getNormalVectorAtReceiversPosition(self):
         nx = 2 * self.truePosition.getAsCartesianCoords().x / Global.a_earth **2 
