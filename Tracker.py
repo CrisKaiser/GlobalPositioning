@@ -21,7 +21,11 @@ class Tracker:
     def updateView(self):
         self._truePositionCache.append([self._receiver.truePosition.getAsCartesianCoords().x , self._receiver.truePosition.getAsCartesianCoords().y, \
         self._receiver.truePosition.getAsCartesianCoords().z])
-        self._estimatedCache.append(self._receiver.estimatedPosition)
+        self._estimatedCache.append([
+            self._receiver.estimatedPosition[0],
+            self._receiver.estimatedPosition[1],
+            self._receiver.estimatedPosition[2]
+        ])
         self._gdopCache.append(self._receiver.gdop)
         self._estimatedWithoutKalmanCache.append(self._receiver.estimatedPositionWithoutKalman)
 

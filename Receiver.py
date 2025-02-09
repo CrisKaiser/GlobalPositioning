@@ -43,13 +43,15 @@ class Receiver:
         self.init_kalman_filter()
 
     def init_kalman_filter(self):
-        dim_x = 3 
-        dim_z = 3 
+        dim_x = 6  # Position + Geschwindigkeit
+        dim_z = 3  # Messung: nur Position
         self.kf = KalmanFilter()
         cart = self.truePosition.getAsCartesianCoords()
-        self.kf.x = np.array([[cart.x], [cart.y], [cart.z]])
+        self.kf.x = np.array([[cart.x], [cart.y], [cart.z], [0], [0], [0]])  
         self.kf.P = np.eye(dim_x) * 10
         self.kf.F = np.eye(dim_x)
+        self.kf.F[0:3, 3:6] = np.eye(3) * Global.deltaT
+        self.kf.F[3:6, 3:6] = np.eye(3) 
         self.kf.H = np.eye(dim_z, dim_x)
         self.kf.R = np.eye(dim_z) * 10
         self.kf.Q = np.eye(dim_x)
@@ -244,6 +246,9 @@ class Receiver:
                 self.counter  = (self.counter + 1) % 4
                 self.distance = 0
 
+            velocity_vector = np.array([self.velocity * math.cos(math.radians(direction)), self.velocity * math.sin(math.radians(direction)), 0])
+            self.kf.x[3:6] = velocity_vector.reshape(-1, 1)
+
         elif Global.PathMode == 1:
             cos_t = math.cos(self.passedTime/50.0 * 2 * math.pi)
             directionAngle = abs(math.degrees(math.atan(cos_t)) - 90)
@@ -252,9 +257,8 @@ class Receiver:
             self.truePosition.phi = point1.latitude
             self.truePosition.lamda = point1.longitude
             self.distance = (self.distance + self.velocity * Global.deltaT)
-            if self.distance > 50:
-                self.counter  = (self.counter + 1) % 4
-                self.distance = 0
+            velocity_vector = np.array([self.velocity * math.cos(math.radians(directionAngle)), self.velocity * math.sin(math.radians(directionAngle)), 0])
+            self.kf.x[3:6] = velocity_vector.reshape(-1, 1)
 
 
     def getSatelliteSpecificNoise(self, angle):

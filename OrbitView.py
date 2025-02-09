@@ -5,27 +5,35 @@ from mpl_toolkits.mplot3d import Axes3D
 from Orbit import Orbit
 from Satellite import Satellite
 import Global
+from Receiver import Receiver
 
 satellite_data = [
+    {"a": 20000000, "e": 0.01, "i": math.radians(55), "bigOmega": math.radians(0), "smallOmega": math.radians(0), "theta": math.radians(0)},
+    {"a": 20000000, "e": 0.01, "i": math.radians(55), "bigOmega": math.radians(0), "smallOmega": math.radians(45), "theta": math.radians(0)},
     {"a": 20000000, "e": 0.01, "i": math.radians(55), "bigOmega": math.radians(0), "smallOmega": math.radians(90), "theta": math.radians(0)},
-    {"a": 20000000, "e": 0.01, "i": math.radians(55), "bigOmega": math.radians(60), "smallOmega": math.radians(120), "theta": math.radians(0)},
-    {"a": 20000000, "e": 0.01, "i": math.radians(55), "bigOmega": math.radians(120), "smallOmega": math.radians(135), "theta": math.radians(0)}
+    {"a": 20000000, "e": 0.01, "i": math.radians(55), "bigOmega": math.radians(0), "smallOmega": math.radians(135), "theta": math.radians(0)},
+    {"a": 20000000, "e": 0.01, "i": math.radians(55), "bigOmega": math.radians(0), "smallOmega": math.radians(180), "theta": math.radians(0)},
+    {"a": 20000000, "e": 0.01, "i": math.radians(55), "bigOmega": math.radians(0), "smallOmega": math.radians(225), "theta": math.radians(0)},
+    {"a": 20000000, "e": 0.01, "i": math.radians(55), "bigOmega": math.radians(0), "smallOmega": math.radians(270), "theta": math.radians(0)},
+    {"a": 20000000, "e": 0.01, "i": math.radians(55), "bigOmega": math.radians(0), "smallOmega": math.radians(315), "theta": math.radians(0)},
 ]
+
+r = Receiver(Global.velocity)
 
 satellites = []
 for data in satellite_data:
     orbit = Orbit(data["a"] + Global.a_earth, data["e"], data["i"], data["bigOmega"], data["smallOmega"], data["theta"])
-    satellites.append(Satellite(orbit))
+    satellites.append(Satellite(orbit, r))
 
 simulation_duration = 100000 
-time_steps = simulation_duration // Global.deltaT
+time_steps = int(simulation_duration // Global.deltaT)
 
 fig = plt.figure(figsize=(10, 10))
 ax = fig.add_subplot(111, projection='3d')
 ax.set_xlabel("X (m)")
 ax.set_ylabel("Y (m)")
 ax.set_zlabel("Z (m)")
-ax.set_title("Satellitenbahnen um die Erde mit WGS84-Ellipsoid")
+#ax.set_title("Satellitenbahnen um die Erde mit WGS84-Ellipsoid")
 
 u = np.linspace(0, 2 * np.pi, 100)
 v = np.linspace(0, np.pi, 100)
@@ -38,7 +46,7 @@ satellite_positions = {i: [] for i in range(len(satellites))}
 
 for t in range(time_steps):
     for i, satellite in enumerate(satellites):
-        satellite.updatePosition(Global.deltaT)
+        satellite.updatePosition()
         x= satellite.getCartesians().x
         y= satellite.getCartesians().y
         z= satellite.getCartesians().z
@@ -46,7 +54,7 @@ for t in range(time_steps):
 
 for i, positions in satellite_positions.items():
     x_vals, y_vals, z_vals = zip(*positions)
-    ax.plot(x_vals, y_vals, z_vals, label=f"Satellit {i+1}")
+    ax.plot(x_vals, y_vals, z_vals, label=f"Orbit {i+1}")
 
 ax.legend()
 plt.show()
